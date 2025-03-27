@@ -1,0 +1,12 @@
+{
+    "name": "irina/voucher",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Irina\\Voucher\\": "src/"
+        }
+    },
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
+}
