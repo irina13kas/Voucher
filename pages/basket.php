@@ -103,9 +103,6 @@ if($_SESSION['order'] > 0) {
                                                         <div style="margin-left:22px; margin-top:2px; "><img src="../images/hl.gif"></div>
                                                         <div style="margin-left:22px; margin-top:7px; "><img src="../images/1_w2.gif"></div>
                                                         <div style="margin-left:22px; margin-top:13px; ">
-                                                            <?php if ($success): ?>
-                                                                <h3 style="color: green;">Заказ успешно оформлен!</p>
-                                                            <?php endif; ?>
                                                             <h2>Итоговая сумма: <?= $total ?> руб.</h2>
                                                             
 <br><br><br><br>
@@ -114,15 +111,15 @@ if($_SESSION['order'] > 0) {
                                                         <div style="margin-left:22px; margin-top:16px; "><img src="../images/hl.gif"></div>
                                                         <div style="margin-left:22px; margin-top:7px; "><img src="../images/1_w4.gif"></div>
                                                         <div style="margin-left:22px; margin-top:9px; ">
-                                                        <form action="template.php" method="post">
-                                                            <button type="submit" name="send_email" class="btn-send">Отправить на почту и записать в файл</button>
-                                                        </form>   
+                                                            <form action="template.php" method="post">
+                                                        <button id="generate-excel">Отправить на почту и записать в файл</button>
+                                                        </form>
                                                                 </div> 
-                                                            </div>
+                                                            
                                                             <?php endif; ?> 
 
 
-                                                        </div>
+                                                        
                                                     </td>
                                                 </tr>
                                             </table>
@@ -151,43 +148,55 @@ if($_SESSION['order'] > 0) {
 
         </table>
     </body>
+    <!-- <script>
+    document.getElementById('generate-excel').addEventListener('click', async () => {
+    const response = await fetch('template.php');
+    //const result = await response.json();
+
+    if (response.ok) {
+        alert(`Файл сохранен:`);
+    } else {
+        alert('Ошибка: ' + result.message);
+    }
+});
+</script> -->
 </html>
 
 <!-- <?php
-require 'template.php';
+// require 'template.php';
 
-if (isset($_POST['send_email'])) {
+// if (isset($_POST['send_email'])) {
 
-// Подготовка данных для письма
-$orderData = [
-    'user' => $_SESSION['order']['name'],
-    'type' => $_SESSION['order']['type']['name'],
-    'country' => $_SESSION['order']['country']['name'],
-    'meal' => $_SESSION['order']['meal']['name'],
-    'days' => $_SESSION['order']['days'],
-    'services' => $_SESSION['order']['services'],
-    'total' => $_SESSION['order']['total_cost']
-];
+// // Подготовка данных для письма
+// $orderData = [
+//     'user' => $_SESSION['order']['name'],
+//     'type' => $_SESSION['order']['type']['name'],
+//     'country' => $_SESSION['order']['country']['name'],
+//     'meal' => $_SESSION['order']['meal']['name'],
+//     'days' => $_SESSION['order']['days'],
+//     'services' => $_SESSION['order']['services'],
+//     'total' => $_SESSION['order']['total_cost']
+// ];
 
-// Путь к файлу Excel
-$excelFile = $order['name'] . '_' . date('Y-m-d') . '.xlsx';
+// // Путь к файлу Excel
+// $excelFile = $order['name'] . '_' . date('Y-m-d') . '.xlsx';
 
 // Отправка письма
-$mailer = new MailSender();
-if ($mailer->sendOrderConfirmation(
-    $order['email'],
-    $order['name'],
-    $orderData,
-    $excelFile
-)) {
-    $_SESSION['mail_status'] = 'Письмо с подтверждением заказа отправлено на ваш email';
-} else {
-    $_SESSION['mail_status'] = 'Произошла ошибка при отправке письма';
-}
-}
-// Перенаправление обратно в корзину
-header("Location: basket.php");
-exit;
+// $mailer = new MailSender();
+// if ($mailer->sendOrderConfirmation(
+//     $order['email'],
+//     $order['name'],
+//     $orderData,
+//     $excelFile
+// )) {
+//     $_SESSION['mail_status'] = 'Письмо с подтверждением заказа отправлено на ваш email';
+// } else {
+//     $_SESSION['mail_status'] = 'Произошла ошибка при отправке письма';
+// }
+// }
+// // Перенаправление обратно в корзину
+// header("Location: basket.php");
+// exit;
 ?> -->
 <!-- <?php
 // Данные для письма
@@ -329,3 +338,6 @@ $writer->save($fileName);
 }
 }
 ?> -->
+
+
+

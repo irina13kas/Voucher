@@ -1,4 +1,6 @@
 <?php
+header('Content-Type: application/json');
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -14,12 +16,12 @@ if (isset($_POST['send_email'])) {
     require '../vendor/autoload.php';
     // Создаем новый Excel-документ
     $data = $_SESSION['order'];
-    $fileName = '../assets/'.$data['surname'].'_'.date('d-m-Y').".xlsx";
+    $fileName = $data['surname'].'_'.date('d-m-Y').".xlsx";
     if (file_exists($fileName)) {
         $spreadsheet = IOFactory::load($fileName);
-        $sheet = $spreadsheet->getActiveSheet();
     } else {
         $spreadsheet = new Spreadsheet();
+    }
         $sheet = $spreadsheet->getActiveSheet();
     $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
@@ -262,100 +264,145 @@ if (isset($_POST['send_email'])) {
     $sheet->mergeCells('G29:I29');
     $sheet->setCellValue('G29', 'Наташа Петрова');
     // Сохраняем файл на сервере
-    $writer = new Xlsx($spreadsheet);
-    $writer->save($fileName);
-    }
+    // $writer = new Xlsx($spreadsheet);
+    // $writer->save($fileName);
+    // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    // header('Content-Disposition: attachment; filename=""'.$fileName.'.xlsx');
+
+    // $writer = new PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    // $writer->save('php://output');
+
+    // Путь для сохранения
+// Настройка пути сохранения
+$storageDir = __DIR__ . '../assets/';  // Путь к папке
+$fullPath = $storageDir . $fileName;
+// Проверяем и создаем папку, если её нет
+if (!file_exists($storageDir)) {
+    mkdir($storageDir, 0755, true); // 0755 — права на запись
 }
+// Сохраняем файл
+try {
+    $writer = new Xlsx($spreadsheet);
+    $writer->save($fullPath);
+    // Ответ в JSON (можно использовать в AJAX)
+    echo json_encode([
+        'status' => 'success',
+        //'message' => 'Файл успешно сохранен на сервере.',
+        'path' => $fullPath,
+        //'url' => '../assets/' . $fileName, // Относительный URL
+        
+    ]);
+    exit;
+} catch (Exception $e) {
+    echo json_encode([
+        'status' => 'error',
+        'message' => 'Ошибка при сохранении: ' . $e->getMessage(),
+    ]);
+    exit;
+}
+
+// $dir = __DIR__ . '/assets/'; // Папка на сервере
+// if (!file_exists($dir)) {
+//     mkdir($dir, 0755, true); // Создаём папку, если её нет
+// }
+
+// // Формируем уникальное имя файла
+// $filename = 'voucher_' . time() . '.xlsx';
+// $fullPath = $dir . $filename;
+
+// Сохраняем на сервер
+   }
+    
 ?>
 
 <!-- <?php
 require 'vendor/autoload.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+//use PHPMailer\PHPMailer\PHPMailer;
+//use PHPMailer\PHPMailer\Exception;
 
-class MailSender {
-    private $mail;
+// class MailSender {
+//     private $mail;
     
-    public function __construct() {
-        $this->mail = new PHPMailer(true);
-        $this->configure();
-    }
+//     public function __construct() {
+//         $this->mail = new PHPMailer(true);
+//         $this->configure();
+//     }
     
-    private function configure() {
-        // Настройки SMTP
-        $this->mail->isSMTP();
-        $this->mail->Host = 'smtp.gmail.com'; // Ваш SMTP-сервер
-        $this->mail->Username = 'm.ira13kas@gmail.com';
-        $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $this->mail->Port = 465;
+//     private function configure() {
+//         // Настройки SMTP
+//         $this->mail->isSMTP();
+//         $this->mail->Host = 'smtp.gmail.com'; // Ваш SMTP-сервер
+//         $this->mail->Username = 'm.ira13kas@gmail.com';
+//         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+//         $this->mail->Port = 465;
         
-        // Общие настройки
-        $this->mail->CharSet = 'UTF-8';
-        $this->mail->setFrom('noreply@traveldream.ru', 'TravelDream');
-        $this->mail->isHTML(true);
-    }
+//         // Общие настройки
+//         $this->mail->CharSet = 'UTF-8';
+//         $this->mail->setFrom('noreply@traveldream.ru', 'TravelDream');
+//         $this->mail->isHTML(true);
+//     }
     
-    public function sendOrderConfirmation($toEmail, $toName, $orderDetails, $attachmentPath = null) {
-        try {
-            $this->mail->addAddress($toEmail, $toName);
-            $this->mail->Subject = 'Подтверждение заказа туристической путевки';
+//     public function sendOrderConfirmation($toEmail, $toName, $orderDetails, $attachmentPath = null) {
+//         try {
+//             $this->mail->addAddress($toEmail, $toName);
+//             $this->mail->Subject = 'Подтверждение заказа туристической путевки';
             
-            // Формируем HTML-письмо
-            $this->mail->Body = $this->createEmailBody($orderDetails);
+//             // Формируем HTML-письмо
+//             $this->mail->Body = $this->createEmailBody($orderDetails);
             
-            // // Прикрепляем файл если есть
-            // if ($attachmentPath) {
-            //     $this->mail->addAttachment($attachmentPath);
-            // }
+//             // // Прикрепляем файл если есть
+//             // if ($attachmentPath) {
+//             //     $this->mail->addAttachment($attachmentPath);
+//             // }
             
-            $this->mail->send();
-            return true;
-        } catch (Exception $e) {
-            error_log("Ошибка отправки письма: {$this->mail->ErrorInfo}");
-            return false;
-        }
-    }
+//             $this->mail->send();
+//             return true;
+//         } catch (Exception $e) {
+//             error_log("Ошибка отправки письма: {$this->mail->ErrorInfo}");
+//             return false;
+//         }
+//     }
     
-    private function createEmailBody($order) {
-        return '
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <style>
-                body { font-family: Arial, sans-serif; line-height: 1.6; }
-                .header { color: #2c3e50; }
-                .order-details { background: #f9f9f9; padding: 20px; border-radius: 5px; }
-                .total { font-weight: bold; font-size: 1.2em; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h2>Уважаемый(ая) '.htmlspecialchars($order['user']).'!</h2>
-                <p>Благодарим вас за заказ в TravelDream!</p>
-            </div>
+//     private function createEmailBody($order) {
+//         return '
+//         <!DOCTYPE html>
+//         <html>
+//         <head>
+//             <style>
+//                 body { font-family: Arial, sans-serif; line-height: 1.6; }
+//                 .header { color: #2c3e50; }
+//                 .order-details { background: #f9f9f9; padding: 20px; border-radius: 5px; }
+//                 .total { font-weight: bold; font-size: 1.2em; }
+//             </style>
+//         </head>
+//         <body>
+//             <div class="header">
+//                 <h2>Уважаемый(ая) '.htmlspecialchars($order['user']).'!</h2>
+//                 <p>Благодарим вас за заказ в TravelDream!</p>
+//             </div>
             
-            <div class="order-details">
-                <h3>Детали вашего заказа:</h3>
-                <p><strong>Тип путевки:</strong> '.htmlspecialchars($order['type']).'</p>
-                <p><strong>Страна:</strong> '.htmlspecialchars($order['country']).'</p>
-                <p><strong>Питание:</strong> '.htmlspecialchars($order['meal']).'</p>
-                <p><strong>Количество дней:</strong> '.htmlspecialchars($order['days']).'</p>
+//             <div class="order-details">
+//                 <h3>Детали вашего заказа:</h3>
+//                 <p><strong>Тип путевки:</strong> '.htmlspecialchars($order['type']).'</p>
+//                 <p><strong>Страна:</strong> '.htmlspecialchars($order['country']).'</p>
+//                 <p><strong>Питание:</strong> '.htmlspecialchars($order['meal']).'</p>
+//                 <p><strong>Количество дней:</strong> '.htmlspecialchars($order['days']).'</p>
                 
-                <h4>Дополнительные услуги:</h4>
-                <ul>';
-                    foreach ($order['services'] as $service) {
-                        $html .= '<li>'.htmlspecialchars($service['name']).'</li>';
-                    }
-        $html .= '</ul>
+//                 <h4>Дополнительные услуги:</h4>
+//                 <ul>';
+//                     foreach ($order['services'] as $service) {
+//                         $html .= '<li>'.htmlspecialchars($service['name']).'</li>';
+//                     }
+//         $html .= '</ul>
                 
-                <p class="total">Итоговая стоимость: '.htmlspecialchars($order['total']).' руб.</p>
-            </div>
+//                 <p class="total">Итоговая стоимость: '.htmlspecialchars($order['total']).' руб.</p>
+//             </div>
             
-            <p>С уважением,<br>Команда TravelDream</p>
-        </body>
-        </html>
-        ';
-    }
-}
+//             <p>С уважением,<br>Команда TravelDream</p>
+//         </body>
+//         </html>
+//         ';
+//     }
+// }
 ?> -->
