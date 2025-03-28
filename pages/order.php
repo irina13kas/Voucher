@@ -18,6 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['order'] = [
         'type' => ['name' => $_POST['type'],'price'=>$tourTypes[$_POST['type']]],
         'name' => $_POST['name'],
+        'surname' => $_POST['surname'],
         'phone' => $_POST['phone'],
         'email' => $_POST['email'],
         'meal' => ['name' => $_POST['meal'], 'price' => $mealTypes[$_POST['meal']]]
@@ -109,6 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                                             <input type="text" name="name" 
                                                                 value="<?= isset($_SESSION['user']) ? htmlspecialchars($_SESSION['user']['name']) : '' ?>" 
                                                                 placeholder="Имя" required><br>
+                                                                <input type="text" name="surname" 
+                                                                value="<?= isset($_SESSION['user']) ? htmlspecialchars($_SESSION['user']['surname']) : '' ?>" 
+                                                                placeholder="Фамилия" required><br>
                                                             <input type="tel" name="phone" 
                                                                 value="<?= isset($_SESSION['user']) ? htmlspecialchars($_SESSION['user']['phone']) : '' ?>" 
                                                                 placeholder="Телефон" required><br>

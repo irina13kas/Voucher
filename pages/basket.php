@@ -1,6 +1,11 @@
 <?php
-
 session_start();
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 $total = 0;
 $order = $_SESSION['order'];
 $total += $order['type']['price'];
@@ -109,8 +114,8 @@ if($_SESSION['order'] > 0) {
                                                         <div style="margin-left:22px; margin-top:16px; "><img src="../images/hl.gif"></div>
                                                         <div style="margin-left:22px; margin-top:7px; "><img src="../images/1_w4.gif"></div>
                                                         <div style="margin-left:22px; margin-top:9px; ">
-                                                        <form action="send_order.php" method="post">
-                                                            <button type="submit">Отправить на почту и записать в файл</button>
+                                                        <form action="template.php" method="post">
+                                                            <button type="submit" name="send_email" class="btn-send">Отправить на почту и записать в файл</button>
                                                         </form>   
                                                                 </div> 
                                                             </div>
@@ -148,7 +153,7 @@ if($_SESSION['order'] > 0) {
     </body>
 </html>
 
-<?php
+<!-- <?php
 require 'template.php';
 
 if (isset($_POST['send_email'])) {
@@ -183,7 +188,7 @@ if ($mailer->sendOrderConfirmation(
 // Перенаправление обратно в корзину
 header("Location: basket.php");
 exit;
-?>
+?> -->
 <!-- <?php
 // Данные для письма
 $to = $_SESSION['order']['email'];
@@ -243,80 +248,84 @@ header("Location: basket.php");
 exit;
 ?> -->
 
+
+<!-- <?php
 // use PhpOffice\PhpSpreadsheet\Spreadsheet;
 // use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 // use PhpOffice\PhpSpreadsheet\IOFactory;
-// if (!isset($_SESSION['order'])) {
-//     die('Данные не найдены. Заполните форму в template.php.');
-// }
+if (isset($_POST['send_email'])) {
+if (!isset($_SESSION['order'])) {
+    die('Данные не найдены. Заполните форму в template.php.');
+}
 
-// require 'vendor/autoload.php';
-// // Создаем новый Excel-документ
-// $data = $_SESSION['order'];
-// $fileName = "assets/".$data['name'].date('d-m-Y').".xlsx";
-// if (file_exists($fileName)) {
-//     $spreadsheet = IOFactory::load($fileName);
-//     $sheet = $spreadsheet->getActiveSheet();
-// } else {
-//     $spreadsheet = new Spreadsheet();
-//     $sheet = $spreadsheet->getActiveSheet();
-// $spreadsheet = new Spreadsheet();
-// $sheet = $spreadsheet->getActiveSheet();
+require 'vendor/autoload.php';
+// Создаем новый Excel-документ
+$data = $_SESSION['order'];
+$fileName = "assets/".$data['name'].date('d-m-Y').".xlsx";
+if (file_exists($fileName)) {
+    $spreadsheet = IOFactory::load($fileName);
+    $sheet = $spreadsheet->getActiveSheet();
+} else {
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
 
-// // Заполняем данные из сессии
-// $data = $_SESSION['order'];
-// $voucherNumber = rand(1000, 9999); // Случайный номер путевки
+// Заполняем данные из сессии
+$data = $_SESSION['order'];
+$voucherNumber = rand(1000, 9999); // Случайный номер путевки
 
-// // Устанавливаем данные в ячейки (пример для шаблона из изображения)
-// $sheet->setCellValue('A1', 'Туроператор: ' . 'Вокруг света за 80 дней');
-// $sheet->setCellValue('G1', 'Утверждено Главным Министерством туризма от 01.02.2022');
-// $sheet->setCellValue('A3', 'г. Чегдомын');
-// $sheet->setCellValue('A4', 'ИНН 123456987');
-// $sheet->setCellValue('A6', 'Туристическая путевка №');
-// $sheet->setCellValue('B6', $voucherNumber);
+// Устанавливаем данные в ячейки (пример для шаблона из изображения)
+$sheet->setCellValue('A1', 'Туроператор: ' . 'Вокруг света за 80 дней');
+$sheet->setCellValue('G1', 'Утверждено Главным Министерством туризма от 01.02.2022');
+$sheet->setCellValue('A3', 'г. Чегдомын');
+$sheet->setCellValue('A4', 'ИНН 123456987');
+$sheet->setCellValue('A6', 'Туристическая путевка №');
+$sheet->setCellValue('B6', $voucherNumber);
 
-// // Заказчик
-// $sheet->setCellValue('A8', 'Заказчик туристического продукта:');
-// $sheet->setCellValue('B8', $data['name']);
-// $sheet->setCellValue('A9', 'Телефон:');
-// $sheet->setCellValue('B9', $data['phone']);
-// $sheet->setCellValue('A10', 'Email:');
-// $sheet->setCellValue('B10', $data['email']);
+// Заказчик
+$sheet->setCellValue('A8', 'Заказчик туристического продукта:');
+$sheet->setCellValue('B8', $data['name']);
+$sheet->setCellValue('A9', 'Телефон:');
+$sheet->setCellValue('B9', $data['phone']);
+$sheet->setCellValue('A10', 'Email:');
+$sheet->setCellValue('B10', $data['email']);
 
-// // Данные путевки
-// $sheet->setCellValue('A12', 'Тип путевки:');
-// $sheet->setCellValue('B12', $data['type']['name']);
-// $sheet->setCellValue('A13', 'Страна пребывания:');
-// $sheet->setCellValue('B13', $data['country']['name']);
-// $sheet->setCellValue('A14', 'Цена путевки базовая:');
-// $sheet->setCellValue('B14', $data['type']['price']);
-// $sheet->setCellValue('A15', 'Цена путевки с учетом страны:');
-// $sheet->setCellValue('B15', $data['type']['price']+$data['country']['price']);
+// Данные путевки
+$sheet->setCellValue('A12', 'Тип путевки:');
+$sheet->setCellValue('B12', $data['type']['name']);
+$sheet->setCellValue('A13', 'Страна пребывания:');
+$sheet->setCellValue('B13', $data['country']['name']);
+$sheet->setCellValue('A14', 'Цена путевки базовая:');
+$sheet->setCellValue('B14', $data['type']['price']);
+$sheet->setCellValue('A15', 'Цена путевки с учетом страны:');
+$sheet->setCellValue('B15', $data['type']['price']+$data['country']['price']);
 
-// // Доп. услуги
-// $services = $data['services'];
-// $sheet->setCellValue('A17', 'Дополнительные услуги:');
-// for ($i = 0; $i < count($services); $i++) {
-//     $sheet->setCellValue('A' . (18 + $i), ($i + 1));
-//     $sheet->setCellValue('B' . (18 + $i), trim($services[$i]['name']));
-//     $sheet->setCellValue('C' . (18 + $i), trim($services[$i]['price']));
-// }
+// Доп. услуги
+$services = $data['services'];
+$sheet->setCellValue('A17', 'Дополнительные услуги:');
+for ($i = 0; $i < count($services); $i++) {
+    $sheet->setCellValue('A' . (18 + $i), ($i + 1));
+    $sheet->setCellValue('B' . (18 + $i), trim($services[$i]['name']));
+    $sheet->setCellValue('C' . (18 + $i), trim($services[$i]['price']));
+}
 
-// // Итоги
-// $sheet->setCellValue('A22', 'Количество дней:');
-// $sheet->setCellValue('B22', $data['days']);
-// $sheet->setCellValue('A23', 'Вид питания:');
-// $sheet->setCellValue('B23', $data['meal']['name']);
-// $sheet->setCellValue('A25', 'Полная стоимость тура:');
-// $sheet->setCellValue('B25', $data['total_cost'] . ' руб.');
+// Итоги
+$sheet->setCellValue('A22', 'Количество дней:');
+$sheet->setCellValue('B22', $data['days']);
+$sheet->setCellValue('A23', 'Вид питания:');
+$sheet->setCellValue('B23', $data['meal']['name']);
+$sheet->setCellValue('A25', 'Полная стоимость тура:');
+$sheet->setCellValue('B25', $data['total_cost'] . ' руб.');
 
-// // Дата и подпись
-// $sheet->setCellValue('A27', 'Дата:');
-// $sheet->setCellValue('B27', date('d.m.Y'));
-// $sheet->setCellValue('A28', 'Оператор:');
-// $sheet->setCellValue('B28', 'Наташа Петрова');
-// // Сохраняем файл на сервере
-// $writer = new Xlsx($spreadsheet);
-// $writer->save($fileName);
-// }
-?>
+// Дата и подпись
+$sheet->setCellValue('A27', 'Дата:');
+$sheet->setCellValue('B27', date('d.m.Y'));
+$sheet->setCellValue('A28', 'Оператор:');
+$sheet->setCellValue('B28', 'Наташа Петрова');
+// Сохраняем файл на сервере
+$writer = new Xlsx($spreadsheet);
+$writer->save($fileName);
+}
+}
+?> -->
